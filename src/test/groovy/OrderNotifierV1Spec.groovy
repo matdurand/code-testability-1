@@ -23,6 +23,12 @@ class OrderNotifierV1Spec extends Specification {
     def LOCAL_OBJECTIVE = 1000
     def REGIONAL_OBJECTIVE = 5000
 
+    def assertOneEmailTarget(arguments, email) {
+        Collection<String> emails = arguments[2]
+        assert emails.size() == 1
+        assert emails[0] == email
+    }
+
     def setup() {
         salesReportRepository.getLocalSalesObjective(_) >> LOCAL_OBJECTIVE
         salesReportRepository.getRegionalSalesObjective(_) >> REGIONAL_OBJECTIVE
@@ -44,9 +50,7 @@ class OrderNotifierV1Spec extends Specification {
         0 * userRepository.findAll()
         //email sent only to the salesman
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "bob@hotmail.com"
+            assertOneEmailTarget(arguments, "bob@hotmail.com")
 
             String body = arguments[1]
             assert body.startsWith("Hi Bob")
@@ -66,16 +70,12 @@ class OrderNotifierV1Spec extends Specification {
         then:
         1 * userRepository.findAll() >> [new User("Ray", "ray@hotmail.com", Role.LOCAL_MANAGER), new User("Jay", "jay@hotmail.com", Role.REGIONAL_MANAGER)]
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "bob@hotmail.com"
+            assertOneEmailTarget(arguments, "bob@hotmail.com")
         }
 
         then:
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "ray@hotmail.com"
+            assertOneEmailTarget(arguments, "ray@hotmail.com")
         }
     }
 
@@ -90,19 +90,13 @@ class OrderNotifierV1Spec extends Specification {
         then:
         2 * userRepository.findAll() >> [new User("Ray", "ray@hotmail.com", Role.LOCAL_MANAGER), new User("Jay", "jay@hotmail.com", Role.REGIONAL_MANAGER)]
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "bob@hotmail.com"
+            assertOneEmailTarget(arguments, "bob@hotmail.com")
         }
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "ray@hotmail.com"
+            assertOneEmailTarget(arguments, "ray@hotmail.com")
         }
         1 * emailService.sendMail(*_) >> { arguments ->
-            Collection<String> emails = arguments[2]
-            assert emails.size() == 1
-            assert emails[0] == "jay@hotmail.com"
+            assertOneEmailTarget(arguments, "jay@hotmail.com")
         }
     }
 
