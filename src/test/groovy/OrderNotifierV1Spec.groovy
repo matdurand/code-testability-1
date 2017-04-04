@@ -40,7 +40,7 @@ class OrderNotifierV1Spec extends Specification {
     def "notifier sends email to order creator"() {
         setup:
         def order = new Order(new User("Bob", "bob@hotmail.com"), 100, location)
-        orderRepository.findAll(_) >> [order]
+        orderRepository.findAll(_,_) >> [order]
 
         when:
         notifier.onNewOrder(order);
@@ -62,7 +62,7 @@ class OrderNotifierV1Spec extends Specification {
         setup:
         def order1 = new Order(new User("Bob", "bob@hotmail.com"), LOCAL_OBJECTIVE/2, location)
         def order2 = new Order(new User("Bob", "bob@hotmail.com"), LOCAL_OBJECTIVE/2 + 1, location)
-        orderRepository.findAll(_) >> [order1, order2]
+        orderRepository.findAll(_,_) >> [order1, order2]
 
         when:
         notifier.onNewOrder(order2);
@@ -82,7 +82,7 @@ class OrderNotifierV1Spec extends Specification {
     def "notifier sends email to regional managers when order amount is over threshold"() {
         setup:
         def order = new Order(new User("Bob", "bob@hotmail.com"), REGIONAL_OBJECTIVE, location)
-        orderRepository.findAll(_) >> [order]
+        orderRepository.findAll(_,_) >> [order]
 
         when:
         notifier.onNewOrder(order);

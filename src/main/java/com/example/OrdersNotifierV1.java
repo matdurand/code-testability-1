@@ -70,19 +70,20 @@ public class OrdersNotifierV1 {
         double objective = this.salesReportRepository
                 .getRegionalSalesObjective(
                     order.getLocation().getRegion());
-        return isThresholdReachedForToday(order, objective);
+        Collection<Order> allOrdersForRegion = this.orderRepository.findAll(new Date(), order.getLocation().getRegion());
+        return hasThresholdJustBeenReached(order, allOrdersForRegion, objective);
     }
 
     public boolean isLocalManagerThresholdReachedForToday(Order order) {
         double objective = this.salesReportRepository
                 .getLocalSalesObjective(
                   order.getLocation());
-        return isThresholdReachedForToday(order, objective);
+        Collection<Order> allOrdersForLocation = this.orderRepository.findAll(new Date(), order.getLocation());
+        return hasThresholdJustBeenReached(order, allOrdersForLocation, objective);
     }
 
-    private boolean isThresholdReachedForToday(Order order, double objective) {
-        Collection<Order> allOrders = this.orderRepository.findAll(new Date());
-        double total = allOrders.stream().mapToDouble(o -> o.getTotal()).sum();
+    private boolean hasThresholdJustBeenReached(Order order, Collection<Order> orders, double objective) {
+        double total = orders.stream().mapToDouble(o -> o.getTotal()).sum();
         double totalMinusOrder = total - order.getTotal();
         return total >= objective && totalMinusOrder < objective;
     }
